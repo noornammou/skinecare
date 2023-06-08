@@ -20,10 +20,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import AllowAny
 from .serializers import UserSerializer
+from django.views.decorators.csrf import csrf_exempt
 
 
 User = get_user_model()
 
+
+class CsrfExemptMixin(object):
+    @classmethod
+    def as_view(cls, **kwargs):
+        view = super(CsrfExemptMixin, cls).as_view(**kwargs)
+        return csrf_exempt(view)
 
 class SignUpView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -33,10 +40,12 @@ class SignUpView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response({'token': serializer.data['token']}, status=status.HTTP_201_CREATED)
- 
+        user = self.perform_create(serializer)
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
 
+    def perform_create(self, serializer):
+        return serializer.save()
 class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
