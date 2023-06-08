@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import generics, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from users.models import User
+from django.db import DatabaseError
 from .serializers import UserSerializer, LoginSerializer,ActivationSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -38,14 +38,18 @@ class SignUpView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = self.perform_create(serializer)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+         try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = self.perform_create(serializer)
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+         except DatabaseError:
+            return Response({'message': 'Database connection failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def perform_create(self, serializer):
         return serializer.save()
+    
 class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
