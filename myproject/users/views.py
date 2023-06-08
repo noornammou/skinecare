@@ -32,11 +32,10 @@ class CsrfExemptMixin(object):
         view = super(CsrfExemptMixin, cls).as_view(**kwargs)
         return csrf_exempt(view)
 
-class SignUpView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
-def post(self, request):
+
+class SignUpView(APIView):
+    permission_classes = []
+    def post(self, request):
         email = request.data.get('email')
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
@@ -45,11 +44,8 @@ def post(self, request):
             user = User.objects.create_user(email=email, first_name=first_name, last_name=last_name, password=password)
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key, 'message': 'User created successfully.'}, status=status.HTTP_200_OK)
-        except DatabaseError:
-            return Response({'token': None,'message': 'Database connection failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        except Exception as e:
-            return Response({'token': None, 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+        except:
+            return Response({'message': 'Failed to create user.'}, status=status.HTTP_400_BAD_REQUEST)
         
 class LoginAPIView(APIView):
     authentication_classes = []
