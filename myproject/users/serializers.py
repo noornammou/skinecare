@@ -18,19 +18,14 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.CharField(write_only=True)
     token = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'password', 'confirm_password', 'token')
+        fields = ('email', 'first_name', 'last_name', 'password', 'token')
         extra_kwargs = {'password': {'write_only': True}}
-
     def create(self, validated_data):
         password = validated_data.pop('password')
-        confirm_password = validated_data.pop('confirm_password')
-        if password != confirm_password:
-            raise serializers.ValidationError("Passwords do not match.")
         user = User.objects.create_user(
             email=validated_data['email'],
             first_name=validated_data['first_name'],
@@ -39,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         )
         token, created = Token.objects.get_or_create(user=user)
         return user
-
+    
     def get_token(self, obj):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key

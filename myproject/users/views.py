@@ -36,20 +36,21 @@ class SignUpView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-         try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            user = self.perform_create(serializer)
+def post(self, request):
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password')
+        try:
+            user = User.objects.create_user(email=email, first_name=first_name, last_name=last_name, password=password)
             token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
-         except DatabaseError:
-            return Response({'message': 'Database connection failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def perform_create(self, serializer):
-        return serializer.save()
-    
+            return Response({'token': token.key, 'message': 'User created successfully.'}, status=status.HTTP_200_OK)
+        except DatabaseError:
+            return Response({'token': None,'message': 'Database connection failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            return Response({'token': None, 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
 class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
