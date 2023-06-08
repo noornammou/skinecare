@@ -19,7 +19,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import AllowAny
-from .serializers import UserSerializer
+from .serializers import UserSerializer,LogoutSerializer
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -66,10 +66,11 @@ class LoginAPIView(APIView):
         
 class LogoutAPIView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LogoutSerializer
 
     def post(self, request):
         request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
+        return Response({'message': 'You have been logged out.'}, status=status.HTTP_200_OK)
 
 class ActivationViewv(generics.GenericAPIView):
     serializer_class = ActivationSerializer

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
-from users.views import LoginAPIView,SignUpView
+from users.views import LoginAPIView,SignUpView,LogoutAPIView
 from users import views
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -32,5 +32,6 @@ urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('api/login/', LoginAPIView.as_view(), name='login'),
     path('api/signup/', SignUpView.as_view(), name='signup'),
+    path('api/logout/', LogoutAPIView.as_view(), name='signup'),
     path('api/', include(router.urls)),
 ]

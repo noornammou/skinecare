@@ -81,7 +81,10 @@ class TokenSerializer(serializers.Serializer):
             'last_name': user.last_name,
         }
         return data
-
+    
+class LogoutSerializer(serializers.Serializer):
+    message = serializers.CharField(default="You have been logged out.")
+    
 class ActivationSerializer(serializers.Serializer):
     uidb64 = serializers.CharField()
     token = serializers.CharField()
