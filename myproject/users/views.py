@@ -2,11 +2,9 @@ from django.shortcuts import render
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.tokens import default_token_generator
-from django.core.exceptions import ValidationError
 from rest_framework import generics, permissions, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from django.db import DatabaseError
 from .serializers import UserSerializer, LoginSerializer,ActivationSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -16,9 +14,7 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from rest_framework.permissions import AllowAny
+from rest_framework.authentication import TokenAuthentication
 from .serializers import UserSerializer,LogoutSerializer
 from django.views.decorators.csrf import csrf_exempt
 
@@ -26,26 +22,41 @@ from django.views.decorators.csrf import csrf_exempt
 User = get_user_model()
 
 
-class CsrfExemptMixin(object):
-    @classmethod
-    def as_view(cls, **kwargs):
-        view = super(CsrfExemptMixin, cls).as_view(**kwargs)
-        return csrf_exempt(view)
-
-
 class SignUpView(APIView):
     permission_classes = []
-    def put(self, request):
+    authentication_classes = [TokenAuthentication]
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request):
         email = request.data.get('email')
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
         password = request.data.get('password')
+        
+        # Check if user with the provided email already exists
         try:
+            user = User.objects.get(email=email)
+            
+            # Update user details
+            user.first_name = first_name
+            user.last_name = last_name
+            user.set_password(password)
+            user.save()
+            
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token': token.key, 'message': 'User updated successfully.'}, status=200)
+            
+        except User.DoesNotExist:
+            # Create new user
             user = User.objects.create_user(email=email, first_name=first_name, last_name=last_name, password=password)
             token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'message': 'User created successfully.'}, status=status.HTTP_200_OK)
+            return Response({'token': token.key, 'message': 'User created successfully.'}, status=201)
+        
         except:
-            return Response({'message': 'Failed to create user.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Failed to create/update user.'}, status=400)
+        
         
 class LoginAPIView(APIView):
     authentication_classes = []
