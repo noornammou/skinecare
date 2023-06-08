@@ -25,13 +25,13 @@ router.register(r'users', views.UserViewSet)
 
 
 
-urlpatterns = [
+urlpatterns = [ 
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls')),
-    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('api/login/', LoginAPIView.as_view(), name='login'),
     path('api/signup/', SignUpView.as_view(), name='signup'),
     path('api/logout/', LogoutAPIView.as_view(), name='signup'),
+    path('', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls')),
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('api/', include(router.urls)),
 ]
