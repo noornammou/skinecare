@@ -43,7 +43,7 @@ class SignUpView(generics.CreateAPIView):
             serializer.is_valid(raise_exception=True)
             user = self.perform_create(serializer)
             token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key}, status=status.HTTP_201_CREATED)
+            return Response({'token': token.key, 'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
          except DatabaseError:
             return Response({'message': 'Database connection failed.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
