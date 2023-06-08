@@ -35,7 +35,6 @@ class SignUpView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response({'token': serializer.data['token']}, status=status.HTTP_201_CREATED)
-
  
 
 class LoginAPIView(APIView):
