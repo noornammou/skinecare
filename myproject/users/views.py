@@ -29,7 +29,7 @@ class SignUpView(APIView):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
     
-    def post(self, request):
+    def put(self, request):
         email = request.data.get('email')
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
