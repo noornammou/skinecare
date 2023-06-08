@@ -16,61 +16,33 @@ from django.contrib.auth.password_validation import validate_password
 account_activation_token = PasswordResetTokenGenerator()
 User = get_user_model()
 
-class SignupSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+
+class UserSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
+    token = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'password', 'confirm_password')
+        fields = ('email', 'first_name', 'last_name', 'password', 'confirm_password', 'token')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         password = validated_data.pop('password')
         confirm_password = validated_data.pop('confirm_password')
-
         if password != confirm_password:
-            raise serializers.ValidationError("Passwords do not match")
-
-        user = User.objects.create_user(**validated_data, password=password)
+            raise serializers.ValidationError("Passwords do not match.")
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            password=password,
+        )
         token, created = Token.objects.get_or_create(user=user)
-        response_data = {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'token': token.key,
-            'message': 'User created successfully.'
-        }
-        return response_data
-    
-class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
-    
-    class Meta:
-        model = User
-        fields = ( 'first_name', 'last_name', 'email', 'password')
-        
-        extra_kwargs = {'password': {'write_only': True}}
+        return user
 
-    def create(self, validated_data):
-        user = User.objects.create(
-        email=validated_data['email'],
-        first_name=validated_data['first_name'],
-        last_name=validated_data['last_name'],
-                                )
-        user.set_password(validated_data['password'])
-        user.save()
-        token = Token.objects.create(user=user)
-        return {
-        'user': user,
-        'token': token.key
-                }
-
-    def validate_password(self, value):
-        try:
-            validate_password(value)
-        except ValidationError as e:
-            raise serializers.ValidationError(str(e))
-        return value
+    def get_token(self, obj):
+        token, created = Token.objects.get_or_create(user=obj)
+        return token.key
     
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

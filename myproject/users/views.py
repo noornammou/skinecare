@@ -16,26 +16,25 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from django.contrib.auth.models import User
-from .serializers import SignupSerializer
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-
+from rest_framework.permissions import AllowAny
+from .serializers import UserSerializer
 
 
 User = get_user_model()
 
 
-class SignupView(APIView):
+class SignUpView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
 
-    authentication_classes = []
-    permission_classes = []
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            user_data = serializer.save()
-            return Response(user_data)
-        else:
-            return Response(serializer.errors, status=400)
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({'token': serializer.data['token']}, status=status.HTTP_201_CREATED)
 
  
 
