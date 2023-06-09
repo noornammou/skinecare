@@ -61,6 +61,14 @@ class LoginAPIView(APIView):
     def post(self, request, *args, **kwargs):
         email = request.data.get('email')
         password = request.data.get('password')
+
+        # Check if user with the provided email exists
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'error': 'This user does not exist.'})
+
+        # Authenticate user with provided email and password
         user = authenticate(email=email, password=password)
         if user is not None:
             login(request, user)
