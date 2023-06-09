@@ -25,37 +25,33 @@ User = get_user_model()
 class SignUpView(APIView):
     permission_classes = []
     authentication_classes = [TokenAuthentication]
+
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
-    
+
     def post(self, request):
         email = request.data.get('email')
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
         password = request.data.get('password')
-        
+
         # Check if user with the provided email already exists
         try:
             user = User.objects.get(email=email)
-            
-            # Update user details
-            user.first_name = first_name
-            user.last_name = last_name
-            user.set_password(password)
-            user.save()
-            
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({'token': token.key, 'message': 'User updated successfully.'}, status=200)
-            
+
+            # Return error response indicating that email already exists
+            return Response({'message': 'This email already exists.'}, status=400)
+
         except User.DoesNotExist:
             # Create new user
             user = User.objects.create_user(email=email, first_name=first_name, last_name=last_name, password=password)
             token, created = Token.objects.get_or_create(user=user)
             return Response({'token': token.key, 'message': 'User created successfully.'}, status=201)
-        
+
         except:
             return Response({'message': 'Failed to create/update user.'}, status=400)
+        
         
         
 class LoginAPIView(APIView):
