@@ -66,7 +66,7 @@ class LoginAPIView(APIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({'error': 'This user does not exist.'})
+            return Response({'error': 'This user does not exist.'}, status=400)
 
         # Authenticate user with provided email and password
         user = authenticate(email=email, password=password)
@@ -75,9 +75,9 @@ class LoginAPIView(APIView):
             token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'email': user.email,
-                'token': token.key})
+                'token': token.key}, status=200)
         else:
-            return Response({'error': 'Invalid credentials'})
+            return Response({'error': 'Incorrect password.'}, status=400)
         
 class LogoutAPIView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
