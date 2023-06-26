@@ -12,34 +12,34 @@ class UserManager(BaseUserManager):
             email=self.normalize_email(email),
             first_name=first_name,
             last_name=last_name,
+            is_active=False, 
             **extra_fields,
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
-
-    def create_superuser(self, email, first_name, last_name, password, **extra_fields):
+def create_superuser(self, email, first_name, last_name, password, **extra_fields):
         user = self.create_user(
             email=self.normalize_email(email),
             first_name=first_name,
             last_name=last_name,
             password=password,
+            is_staff=True,
+            is_superuser=True,
+            is_active=True,
             **extra_fields,
         )
-
-        user.is_staff = True
-        user.is_superuser = True
         user.save(using=self._db)
         return user
+    
     
 class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(default=timezone.now)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 

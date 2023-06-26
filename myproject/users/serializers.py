@@ -12,17 +12,20 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import hashlib,time,json
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.urls import reverse
+
 
 account_activation_token = PasswordResetTokenGenerator()
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    is_email_verified = serializers.SerializerMethodField()
     token = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'password', 'token')
+        fields = ('id', 'email', 'first_name', 'last_name', 'is_email_verified', 'password', 'token')
         extra_kwargs = {'password': {'write_only': True}}
     def create(self, validated_data):
         password = validated_data.pop('password')
@@ -32,13 +35,23 @@ class UserSerializer(serializers.ModelSerializer):
             last_name=validated_data['last_name'],
             password=password,
         )
-        token, created = Token.objects.get_or_create(user=user)
         return user
     
     def get_token(self, obj):
         token, created = Token.objects.get_or_create(user=obj)
         return token.key
     
+    def get_is_email_verified(self, obj):
+        return obj.is_active
+    
+    def get_full_name(self, obj):
+        return obj.get_full_name()
+    
+    def get_short_name(self, obj):
+        return obj.get_short_name()
+    
+    def get_date_joined(self, obj):
+        return obj.date_joined.isoformat()
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()

@@ -67,12 +67,12 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'users.User'
+ 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-email-password'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = 'abba8fd4eaa425'
+EMAIL_HOST_PASSWORD = '5cd75ca4075405'
+EMAIL_PORT = '2525'
 
 TOKEN_EXPIRED_AFTER_SECONDS = 60 * 60 * 24 * 30  # 30 days
 TOKEN_SECRET_KEY = 'your-secret-key'
