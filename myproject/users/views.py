@@ -23,7 +23,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.generic import View
 from django.core.mail import EmailMessage
-import re
+
 
 User = get_user_model()
 class SignUpView(APIView):
@@ -36,10 +36,7 @@ class SignUpView(APIView):
         last_name = request.data.get('last_name')
         password = request.data.get('password')
 
-        # Check if the email is in the correct format
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            return Response({'message': 'Please provide a valid email address.'}, status=status.HTTP_401_UNAUTHORIZED)
-
+    
         # Check if the user with the provided email already exists
         try:
             user = User.objects.get(email=email)
