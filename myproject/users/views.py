@@ -41,7 +41,7 @@ class SignUpView(APIView):
 
             # Check if the user's email is already validated
             if user.is_active:
-                return Response({'message': 'This email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'This email already exists.'}, status=status.HTTP_409_CONFLICT)
             else:
                 # Resend verification email to user
                 self.send_verification_email(user)
@@ -58,7 +58,7 @@ class SignUpView(APIView):
             return Response({'token': token.key, 'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
 
         except:
-            return Response({'message': 'Failed to create user.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Failed to create user.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def send_verification_email(self, user):
         # Generate verification URL for the user
@@ -87,7 +87,7 @@ class VerifyEmailView(View):
             user.save()
             return JsonResponse({'message': 'Email verified successfully.'})
         else:
-            return JsonResponse({'message': 'Invalid verification link.'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'message': 'Invalid verification link.'}, status=status.HTTP_404_NOT_FOUND)
 
 class LoginAPIView(APIView):
     authentication_classes = []
@@ -101,11 +101,11 @@ class LoginAPIView(APIView):
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({'error': 'This user does not exist.'}, status=400)
+            return Response({'error': 'This user does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check if user's email has been verified
         if not user.is_active:
-            return Response({'error': 'This user has not verified their email.'}, status=400)
+            return Response({'error': 'please verify your email .'},status=status.HTTP_403_FORBIDDEN)
 
         # Authenticate user with provided email and password
         user = authenticate(email=email, password=password)
@@ -116,7 +116,7 @@ class LoginAPIView(APIView):
                 'email': user.email,
                 'token': token.key}, status=200)
         else:
-            return Response({'error': 'Incorrect password.'}, status=400)
+            return Response({'error': 'Incorrect password.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutAPIView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
