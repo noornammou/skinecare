@@ -23,6 +23,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.generic import View
 from django.core.mail import EmailMessage
+import re
 
 User = get_user_model()
 class SignUpView(APIView):
@@ -35,6 +36,10 @@ class SignUpView(APIView):
         last_name = request.data.get('last_name')
         password = request.data.get('password')
 
+        # Check if the email is in the correct format
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            return Response({'message': 'Please provide a valid email address.'}, status=status.HTTP_401_UNAUTHORIZED)
+
         # Check if the user with the provided email already exists
         try:
             user = User.objects.get(email=email)
@@ -45,7 +50,7 @@ class SignUpView(APIView):
             else:
                 # Resend verification email to user
                 self.send_verification_email(user)
-                return Response({'message': 'Please verify your email address. We have sent you a verification email.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'Please verify your account. We have sent you a verification email.'}, status=status.HTTP_202_ACCEPTED)
 
         except User.DoesNotExist:
             # Create new user
@@ -55,10 +60,12 @@ class SignUpView(APIView):
             self.send_verification_email(user)
 
             serializer = UserSerializer(user)
+            token = Token.objects.create(user=user)
             return Response({'token': token.key, 'message': 'User created successfully.'}, status=status.HTTP_201_CREATED)
 
         except:
             return Response({'message': 'Failed to create user.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     def send_verification_email(self, user):
         # Generate verification URL for the user
