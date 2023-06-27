@@ -70,8 +70,8 @@ AUTH_USER_MODEL = 'users.User'
  
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = 'abba8fd4eaa425'
-EMAIL_HOST_PASSWORD = '5cd75ca4075405'
+EMAIL_HOST_USER = ' 01ee7ce1fd7d84'
+EMAIL_HOST_PASSWORD = '93968df2ca1bf7'
 EMAIL_PORT = '2525'
 
 TOKEN_EXPIRED_AFTER_SECONDS = 60 * 60 * 24 * 30  # 30 days
