@@ -71,8 +71,8 @@ DEFAULT_FROM_EMAIL = 'noreply@gmail.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = '01ee7ce1fd7d84'
-EMAIL_HOST_PASSWORD = '93968df2ca1bf7'
+EMAIL_HOST_USER = '9c27672326e680'
+EMAIL_HOST_PASSWORD = '1c620ff7d3684b'
 EMAIL_PORT = '2525'
 
 
