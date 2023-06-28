@@ -92,6 +92,8 @@ class VerifyEmailView(View):
         else:
             return JsonResponse({'message': 'Invalid verification link.'}, status=status.HTTP_404_NOT_FOUND)
 
+
+
 class LoginAPIView(APIView):
     authentication_classes = []
     permission_classes = []
@@ -115,11 +117,11 @@ class LoginAPIView(APIView):
         if user is not None:
             login(request, user)
             token, created = Token.objects.get_or_create(user=user)
-            return Response({
-                'email': user.email,
-                'token': token.key}, status=200)
+            return Response({'token': token.key}, status=status.HTTP_200_OK)   # Return success response
         else:
             return Response({'error': 'Incorrect password.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+
 
 class LogoutAPIView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
