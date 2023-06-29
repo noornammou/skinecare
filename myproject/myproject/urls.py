@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
-from users.views import LoginAPIView,SignUpView,LogoutAPIView,VerifyEmailView
+from users.views import LoginAPIView,SignUpView,LogoutAPIView,VerifyEmailView,UserViewSet
 from users import views
 router = DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -35,5 +35,5 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('api/', include(router.urls)),
-   
+    path('users/delete_account/', UserViewSet.as_view({'delete': 'delete_account'}), name='delete-account'),
 ]
