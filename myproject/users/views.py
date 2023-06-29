@@ -148,15 +148,3 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
     
-    def delete(self, request, *args, **kwargs):
-        user = self.get_object()
-        if user == request.user:
-            
-            user.delete()
-            return Response({'message': 'Account deleted successfully'}, status=HTTP_200_OK)
-        else:
-            return Response({'error': 'You are not authorized to delete this account'}, status=403)
-    
-    @action(detail=False, methods=['delete'])
-    def delete_account(self, request):
-        return self.delete(request)
