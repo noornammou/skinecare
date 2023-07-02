@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
@@ -8,11 +7,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import hashlib,time,json
-from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
-from django.urls import reverse
+
 
 
 account_activation_token = PasswordResetTokenGenerator()
@@ -50,8 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
     def get_short_name(self, obj):
         return obj.get_short_name()
     
-    def get_date_joined(self, obj):
-        return obj.date_joined.isoformat()
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
@@ -83,7 +77,8 @@ class TokenSerializer(serializers.Serializer):
         token_obj.key = token
         token_obj.save()
         return token_obj
-
+        
+    #when a Token object is being serialized into a JSON response
     def to_representation(self, instance):
         data = super().to_representation(instance)
         user = instance.user

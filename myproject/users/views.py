@@ -12,7 +12,6 @@ from users.models import User
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -76,7 +75,6 @@ class SignUpView(APIView):
         email = EmailMessage(subject, message, to=[user.email])
         email.send()
 
-
 class VerifyEmailView(View):
     def get(self, request, uidb64, token):
         try:
@@ -92,7 +90,6 @@ class VerifyEmailView(View):
             return JsonResponse({'message': 'Email verified successfully.'})
         else:
             return JsonResponse({'message': 'Invalid verification link.'}, status=status.HTTP_404_NOT_FOUND)
-
 
 
 class LoginAPIView(APIView):
@@ -115,6 +112,8 @@ class LoginAPIView(APIView):
 
         # Authenticate user with provided email and password
         user = authenticate(email=email, password=password)
+       
+
         if user is not None:
             login(request, user)
             token, created = Token.objects.get_or_create(user=user)
@@ -147,4 +146,3 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    
