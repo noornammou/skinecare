@@ -23,7 +23,6 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.generic import View
 from django.core.mail import EmailMessage
-import re
 from rest_framework.decorators import action
 
 User = get_user_model()

@@ -77,8 +77,7 @@ class TokenSerializer(serializers.Serializer):
         token_obj.key = token
         token_obj.save()
         return token_obj
-        
-    #when a Token object is being serialized into a JSON response
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         user = instance.user
@@ -102,7 +101,7 @@ class ActivationSerializer(serializers.Serializer):
             uid = urlsafe_base64_decode(data['uidb64']).decode()
             user = User.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            raise serializers.ValidationError('Invalid activation link. Please request a new activation link.')
+            raise serializers.ValidationError('Invalid activation link.')
 
         if account_activation_token.check_token(user, data['token']):
             if not user.is_active:
@@ -111,7 +110,7 @@ class ActivationSerializer(serializers.Serializer):
             data['user'] = user
             return data
         else:
-            raise serializers.ValidationError('Invalid activation link. Please request a new activation link.')
+            raise serializers.ValidationError('Invalid activation link.')
 
 
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
@@ -122,9 +121,11 @@ class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
             'is_active': user.is_active,
         }
 
+#converts it to a JSON string then sorts the keys in the JSON string and encodes it to UTF-8 format
+# it hashes the result using the SHA-256 algorithm and returns a hexadecimal string of the hash value.    
     def _make_hash(self, value):
         return hashlib.sha256(json.dumps(value, sort_keys=True).encode('utf-8')).hexdigest()
-
+#create a hash value. It then combines the hash value with the timestamp to create a unique token.
     def _make_token_with_timestamp(self, user, timestamp):
         hash_value = self._make_hash_value(user, timestamp)
         return "{}-{}".format(timestamp, self._make_hash(hash_value))
